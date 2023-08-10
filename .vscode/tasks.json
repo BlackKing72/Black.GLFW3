@@ -1,0 +1,73 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build debug x64",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build", "${workspaceFolder}/Black.GLFW3/Black.GLFW3.csproj",
+                "--arch", "x64",
+                "--configuration", "Debug",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "build release x64",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build", "${workspaceFolder}/Black.GLFW3/Black.GLFW3.csproj",
+                "--arch", "x64",
+                "--configuration", "Release",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "publish debug x64",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish", "${workspaceFolder}/Black.GLFW3/Black.GLFW3.csproj",
+                "--arch", "x64",
+                "--configuration", "Debug",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "publish release x64",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish", "${workspaceFolder}/Black.GLFW3/Black.GLFW3.csproj",
+                "--arch", "x64",
+                "--configuration", "Release",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        }
+    ]   
+}
