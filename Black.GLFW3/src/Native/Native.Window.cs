@@ -98,7 +98,7 @@ public unsafe static partial class Native
     internal static extern int glfwGetWindowAttrib(Window window, WindowAttributes attrib);
     
     [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetWindowAttrib(Window window, WindowAttributes attrib, int value);
+    internal static extern void glfwSetWindowAttrib(Window window, WindowMutableAttributes attrib, int value);
     
     [DllImport(GLFWLibrary.Name)]
     internal static extern void glfwSetWindowUserPointer(Window window, void* pointer);

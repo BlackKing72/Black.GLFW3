@@ -234,7 +234,7 @@ public unsafe static partial class GLFW
         return glfwGetWindowAttrib(window, attribute) == True;
     }
 
-    public static void SetWindowAttrib(this Window window, WindowAttributes attribute, bool value)
+    public static void SetWindowAttrib(this Window window, WindowMutableAttributes attribute, bool value)
     {
         glfwSetWindowAttrib(window, attribute, value ? True : False);
     }
