@@ -1,244 +1,288 @@
-using Black.Unmanaged;
-
 namespace Black.GLFW3;
 
-using static Black.GLFW3.Native;
+using System.Drawing;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using static Black.GLFW3.GLFWNative;
 
-public unsafe static partial class GLFW
+public static unsafe partial class GLFW
 {
-    public static bool GetInputMode (this Window window, InputModes mode)
+    public static bool GetInputMode(this WindowPtr window, InputMode mode)
     {
-        if (mode is InputModes.Cursor)
-            return false;
-
-        return glfwGetInputMode(window, mode) == True;
+        return glfwGetInputMode(window, (int)mode) == NativeTrue;
     }
 
-    public static CursorModes GetCursorInputMode(this Window window)
+    public static CursorMode GetInputMode(this WindowPtr window, InputCursorMode mode)
     {
-        return (CursorModes)glfwGetInputMode(window, InputModes.Cursor);
-    }
-   
-    public static void SetInputMode(this Window window, InputModes mode, bool value)
-    {
-        if (mode is InputModes.Cursor)
-            return;
-
-        glfwSetInputMode(window, mode, value ? True : False);
+        return (CursorMode)glfwGetInputMode(window, (int)mode);
     }
 
-    public static void SetCursorInputMode(this Window window, CursorModes value)
+    public static void SetInputMode(this WindowPtr window, InputMode mode, bool value)
     {
-        glfwSetInputMode(window, InputModes.Cursor, (int)value);
+        glfwSetInputMode(window, (int)mode, value ? NativeTrue : NativeFalse);
+    }
+
+    public static void SetInputMode(this WindowPtr window, InputCursorMode mode, CursorMode value)
+    {
+        glfwSetInputMode(window, (int)mode, (int)value);
     }
 
     public static bool RawMouseMotionSupported()
     {
-        return glfwRawMouseMotionSupported() == True;
+        return glfwRawMouseMotionSupported() == NativeTrue;
     }
 
-    public static string GetKeyName(KeyCodes key, int scancode)
+    public static string GetKeyName(Keys key, int scancode)
     {
-        using var unmanagedName = glfwGetKeyName(key, scancode);
-        return unmanagedName;
+        return CString.AsString(glfwGetKeyName(key, scancode));
     }
 
-    public static string GetKeyName(this KeyCodes key)
-    {
-        return GetKeyName(key, 0);
-    }
+    public static string GetKeyName(this Keys key) => GetKeyName(key, 0);
 
-    public static string GetKeyName(int scancode)
-    {
-        return GetKeyName(KeyCodes.Unknown, scancode);
-    }
+    public static string GetKeyName(int scancode) => GetKeyName(Keys.Unknown, scancode);
 
-    public static int GetKeyScancode(this KeyCodes key)
+    public static int GetKeyScancode(this Keys key)
     {
         return glfwGetKeyScancode(key);
     }
 
-    public static InputActions GetKey(this Window window, KeyCodes key)
+    public static InputAction GetKey(this WindowPtr window, Keys key)
     {
-        return (InputActions)glfwGetKey(window, key);
+        return (InputAction)glfwGetKey(window, key);
     }
 
-    public static InputActions GetMouseButton(this Window window, MouseCodes button)
+    public static InputAction GetMouseButton(this WindowPtr window, MouseButton button)
     {
-        return (InputActions)glfwGetMouseButton(window, button);
+        return (InputAction)glfwGetMouseButton(window, button);
     }
 
-    public static (double xPos, double yPos) GetCursorPos(this Window window)
+    public static Vector2 GetCursorPos(this WindowPtr window)
     {
-        double xpos = 0.0, ypos = 0.0;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        return (xpos, ypos);
+        (double x, double y) pos = (0.0, 0.0);
+        glfwGetCursorPos(window, &pos.x, &pos.y);
+        return new((float)pos.x, (float)pos.y);
     }
 
-    public static void SetCursorPos(this Window window, double xPos, double yPos)
+    public static (double xPos, double yPos) GetCursorPosAsDouble(this WindowPtr window)
     {
-        glfwSetCursorPos(window, xPos, yPos);
+        (double x, double y) pos = (0.0, 0.0);
+        glfwGetCursorPos(window, &pos.x, &pos.y);
+        return pos;
     }
 
-    public static Cursor CreateCursor(Image image, int xHot, int yHot)
+    public static void SetCursorPos(this WindowPtr window, Vector2 position)
     {
-        return glfwCreateCursor(image, xHot, yHot);
+        glfwSetCursorPos(window, position.X, position.Y);
     }
 
-    public static Cursor CreateStandardCursor(StandardCursorShapes shape)
+    public static void SetCursorPos(this WindowPtr window, float positionX, float positionY)
+    {
+        glfwSetCursorPos(window, positionX, positionY);
+    }
+
+    public static void SetCursorPos(this WindowPtr window, double positionX, double positionY)
+    {
+        glfwSetCursorPos(window, positionX, positionY);
+    }
+
+    public static CursorPtr CreateCursor(Image image, Point hotspot)
+    {
+        return glfwCreateCursor(image, hotspot.X, hotspot.Y);
+    }
+
+    public static CursorPtr CreateCursor(Image image, int hotspotX, int hotspotY)
+    {
+        return glfwCreateCursor(image, hotspotX, hotspotY);
+    }
+
+    public static CursorPtr CreateStandardCursor(CursorShape shape)
     {
         return glfwCreateStandardCursor(shape);
     }
 
-    public static void DestroyCursor(this Cursor cursor)
+    public static void DestroyCursor(this CursorPtr cursor)
     {
         glfwDestroyCursor(cursor);
     }
 
-    public static void SetCursor(this Window window, Cursor cursor)
+    public static void SetCursor(this WindowPtr window, CursorPtr cursor)
     {
         glfwSetCursor(window, cursor);
     }
 
-    public static KeyCallback? SetKeyCallback(this Window window, KeyCallback? callback)
+    public static KeyCallback? SetKeyCallback(this WindowPtr window, KeyCallback? callback)
     {
         return glfwSetKeyCallback(window, callback);
     }
 
-    public static CharCallback? SetCharCallback(this Window window, CharCallback? callback)
+    public static CharCallback? SetCharCallback(this WindowPtr window, CharCallback? callback)
     {
         return glfwSetCharCallback(window, callback);
     }
 
     [Obsolete("Scheduled for removal in version 4.0.")]
-    public static CharModsCallback? SetCharModsCallback(this Window window, CharModsCallback? callback)
+    public static CharModsCallback? SetCharModsCallback(this WindowPtr window, CharModsCallback? callback)
     {
         return glfwSetCharModsCallback(window, callback);
     }
 
-    public static MouseButtonCallback? SetMouseButtonCallback(this Window window, MouseButtonCallback? callback)
+    public static MouseButtonCallback? SetMouseButtonCallback(
+        this WindowPtr window,
+        MouseButtonCallback? callback
+    )
     {
         return glfwSetMouseButtonCallback(window, callback);
     }
 
-    public static MousePositionCallback? SetCursorPosCallback(this Window window, MousePositionCallback? callback)
+    public static MousePositionCallback? SetCursorPosCallback(
+        this WindowPtr window,
+        MousePositionCallback? callback
+    )
     {
         return glfwSetCursorPosCallback(window, callback);
     }
 
-    public static MouseEnterCallback? SetCursorEnterCallback(this Window window, MouseEnterCallback? callback)
+    public static MouseEnterCallback? SetCursorEnterCallback(
+        this WindowPtr window,
+        MouseEnterCallback? callback
+    )
     {
         return glfwSetCursorEnterCallback(window, callback);
     }
 
-    public static MouseScrollCallback? SetScrollCallback(this Window window, MouseScrollCallback? callback)
+    public static MouseScrollCallback? SetScrollCallback(this WindowPtr window, MouseScrollCallback? callback)
     {
         return glfwSetScrollCallback(window, callback);
     }
 
-    public static FileDropCallback? SetDropCallback(this Window window, FileDropCallback? callback)
+    public static FileDropCallback? SetDropCallback(this WindowPtr window, FileDropCallback? callback)
     {
         return glfwSetDropCallback(window, callback);
     }
 
-    public static bool JoystickPresent(Joysticks joystickID)
+    public static bool JoystickPresent(Joystick joystickID)
     {
-        return glfwJoystickPresent(joystickID) == True;
+        return glfwJoystickPresent(joystickID) == NativeTrue;
     }
 
-    public static ReadOnlySpan<float> GetJoystickAxes(Joysticks joystickID)
+    public static ReadOnlySpan<float> GetJoystickAxes(Joystick joystickID)
     {
         int count = 0;
         var unmanagedAxes = glfwGetJoystickAxes(joystickID, &count);
-
         return new ReadOnlySpan<float>(unmanagedAxes, count);
     }
 
-    public static ReadOnlySpan<InputActions> GetJoystickButtons(Joysticks joystickID)
+    /// <summary> This copies the data to a new array. Prefer using <see cref="GetJoystickAxes"/> instead </summary>
+    public static float[] GetJoystickAxesArray(Joystick joystickID) => [.. GetJoystickAxes(joystickID)];
+
+    public static ReadOnlySpan<InputAction> GetJoystickButtons(Joystick joystickID)
     {
         int count = 0;
         var unmanagedButtons = glfwGetJoystickButtons(joystickID, &count);
-
-        return new ReadOnlySpan<InputActions>(unmanagedButtons, count);
+        return new ReadOnlySpan<InputAction>(unmanagedButtons, count);
     }
 
-    public static ReadOnlySpan<JoystickHatStates> GetJoystickHats(Joysticks joystickID)
+    /// <summary> This copies the data to a new array. Prefer using <see cref="GetJoystickButtons"/> instead </summary>
+    public static InputAction[] GetJoystickButtonsArray(Joystick joystickID) =>
+        [.. GetJoystickButtons(joystickID)];
+
+    public static ReadOnlySpan<GamepadHat> GetJoystickHats(Joystick joystickID)
     {
         int count = 0;
         var unmanagedHats = glfwGetJoystickHats(joystickID, &count);
-
-        return new ReadOnlySpan<JoystickHatStates>(unmanagedHats, count);
+        return new ReadOnlySpan<GamepadHat>(unmanagedHats, count);
     }
 
-    public static string GetJoystickName(Joysticks joystickID)
+    /// <summary> This copies the data to a new array. Prefer using <see cref="GetJoystickHats"/> instead </summary>
+    public static GamepadHat[] GetJoystickHatsArray(Joystick joystickID) => [.. GetJoystickHats(joystickID)];
+
+    public static string GetJoystickName(Joystick joystickID)
     {
-        using var unmanagedName = glfwGetJoystickName(joystickID);
-        return unmanagedName;
+        return CString.AsString(glfwGetJoystickName(joystickID));
     }
-    
-    public static string GetJoystickGUID(Joysticks joystickID)
+
+    public static string GetJoystickGUID(Joystick joystickID)
     {
-        using var unmanagedGUID = glfwGetJoystickGUID(joystickID);
-        return unmanagedGUID;
+        return CString.AsString(glfwGetJoystickGUID(joystickID));
     }
-    
-    public static void SetJoystickUserPointer<T>(Joysticks joystickID, T userData) where T : unmanaged
+
+    public static void SetJoystickUserPointer<T>(Joystick joystickID, ref T userData)
+        where T : unmanaged
     {
-        using var unmanagedUserData = new UnmanagedData<T>(userData);
-        glfwSetJoystickUserPointer(joystickID, unmanagedUserData);
+        var ptr = Unsafe.AsPointer(ref userData);
+        glfwSetJoystickUserPointer(joystickID, ptr);
     }
-    
-    public static T GetJoystickUserPointer<T>(Joysticks joystickID) where T : unmanaged
+
+    public static T GetJoystickUserPointer<T>(Joystick joystickID)
+        where T : unmanaged
     {
-        using var unmanagedUserData = new UnmanagedData<T>(glfwGetJoystickUserPointer(joystickID));
-        return unmanagedUserData.ManagedData;
+        var ptr = (T*)glfwGetJoystickUserPointer(joystickID);
+        return ptr is null ? default : *ptr;
     }
-    
-    public static bool JoystickIsGamepad(Joysticks joystickID)
+
+    public static bool JoystickIsGamepad(Joystick joystickID)
     {
-        return glfwJoystickIsGamepad(joystickID) == True;
+        return glfwJoystickIsGamepad(joystickID) == NativeTrue;
     }
-    
+
     public static JoystickCallback? SetJoystickCallback(JoystickCallback? callback)
     {
         return glfwSetJoystickCallback(callback);
     }
-    
+
+    public static bool UpdateGamepadMappings(ReadOnlySpan<byte> mappings)
+    {
+        return CString.Use(mappings, str => glfwUpdateGamepadMappings(str) == NativeTrue);
+    }
+
+    public static bool UpdateGamepadMappings(ReadOnlySpan<char> mappings)
+    {
+        return CString.Use(mappings, str => glfwUpdateGamepadMappings(str) == NativeTrue);
+    }
+
     public static bool UpdateGamepadMappings(string mappings)
     {
-        using var unmanagedMappings = new UnmanagedStr(mappings);
-        return glfwUpdateGamepadMappings(unmanagedMappings) == True;
+        return CString.Use(mappings, str => glfwUpdateGamepadMappings(str) == NativeTrue);
     }
 
-    public static string GetGamepadName(Joysticks joystickID)
+    public static string GetGamepadName(Joystick joystickID)
     {
-        using var unmanagedName = glfwGetGamepadName(joystickID);
-        return unmanagedName;
-    }
-    
-    public static bool GetGamepadState(Joysticks joystickID, out GamepadState state)
-    {
-        using var unmanagedState = new UnmanagedData<GamepadState>(state);
-        return glfwGetGamepadState(joystickID, unmanagedState) == True;
+        return CString.AsString(glfwGetGamepadName(joystickID));
     }
 
-    public static void SetClipboardString(this Window window, string clipboard)
+    public static bool GetGamepadState(Joystick joystickID, out GamepadState state)
     {
-        using var unmanagedClipboard = new UnmanagedStr(clipboard);
-        glfwSetClipboardString(window, unmanagedClipboard);
+        GamepadState data = new GamepadState();
+        var result = glfwGetGamepadState(joystickID, &data);
+        state = data;
+        return result == NativeTrue;
     }
 
-    public static string GetClipboardString(this Window window)
+    public static void SetClipboardString(this WindowPtr window, ReadOnlySpan<byte> clipboard)
     {
-        using var unmanagedClipboard = glfwGetClipboardString(window);
-        return unmanagedClipboard;
+        CString.Use(clipboard, str => glfwSetClipboardString(window, str));
     }
-    
+
+    public static void SetClipboardString(this WindowPtr window, ReadOnlySpan<char> clipboard)
+    {
+        CString.Use(clipboard, str => glfwSetClipboardString(window, str));
+    }
+
+    public static void SetClipboardString(this WindowPtr window, string clipboard)
+    {
+        CString.Use(clipboard, str => glfwSetClipboardString(window, str));
+    }
+
+    public static string GetClipboardString(this WindowPtr window)
+    {
+        return CString.AsString(glfwGetClipboardString(window));
+    }
+
     public static double GetTime()
     {
         return glfwGetTime();
     }
-    
+
     public static void SetTime(double time)
     {
         glfwSetTime(time);
@@ -248,7 +292,7 @@ public unsafe static partial class GLFW
     {
         return glfwGetTimerValue();
     }
-    
+
     public static ulong GetTimerFrequency()
     {
         return glfwGetTimerFrequency();

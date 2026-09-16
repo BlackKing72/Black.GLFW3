@@ -1,297 +1,560 @@
+using System.Diagnostics;
+using System.Drawing;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using static Black.GLFW3.GLFWNative;
+
 namespace Black.GLFW3;
 
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
-using System.Text;
-using Black.Unmanaged;
-using static Black.GLFW3.Native;
-
-public unsafe static partial class GLFW
+public static unsafe partial class GLFW
 {
+    private static readonly HashSet<Hint> booleanHints = [];
+
     public static void DefaultWindowHints()
     {
         glfwDefaultWindowHints();
     }
 
-    public static void WindowHint(WindowHints hint, Constants value)
-    {
-        WindowHint(hint, (int)value);
-    }
-
-    public static void WindowHint(WindowHints hint, bool value)
-    {
-        WindowHint(hint, value ? True : False);
-    }
-
-    public static void WindowHint(WindowHints hint, int value)
+    public static void WindowHint(Hint hint, int value)
     {
         glfwWindowHint((int)hint, value);
     }
 
-    public static void WindowHint(WindowHints hint, ClientAPIs value)
+    public static void WindowHint(Hint hint, Constants value)
     {
-        if (hint is not WindowHints.ClientApi)
-            return;
-
         WindowHint(hint, (int)value);
     }
 
-    public static void WindowHint(WindowHints hint, ContextCreationAPIs value)
+    public static void WindowHint(Hint hint, bool value)
     {
-        if (hint is not WindowHints.ContextCreationAPI)
-            return;
+        Debug.Assert(
+            hint
+                is Hint.Resizable
+                    or Hint.Visible
+                    or Hint.Decorated
+                    or Hint.Focused
+                    or Hint.AutoIconify
+                    or Hint.Floating
+                    or Hint.Maximized
+                    or Hint.CenterCursor
+                    or Hint.TransparentFramebuffer
+                    or Hint.FocusOnShow
+                    or Hint.ScaleToMonitor
+                    or Hint.ScaleFramebuffer
+                    or Hint.MousePassthrough
+                    or Hint.Stereo
+                    or Hint.SRGBCapable
+                    or Hint.DoubleBuffer
+                    or Hint.OpenGLForwardCompat
+                    or Hint.ContextDebug
+                    or Hint.Win32KeyboardMenu
+                    or Hint.Win32ShowDefault
+                    or Hint.CocoaGraphicsSwitching
+        );
 
-        WindowHint(hint, (int)value);
+        WindowHint(hint, value ? NativeTrue : NativeFalse);
     }
 
-    public static void WindowHint(WindowHints hint, OpenGLProfiles value)
+    public static void WindowHint(Hint hint, ClientAPI value)
     {
-        if (hint is not WindowHints.OpenGLProfile)
-            return;
-
-        WindowHint(hint, (int)value);
+        Debug.Assert(hint is Hint.ClientAPI);
+        WindowHint(value);
     }
 
-    public static void WindowHint(WindowHints hint, ContextRobustness value)
+    public static void WindowHint(Hint hint, ContextCreationAPI value)
     {
-        if (hint is not WindowHints.ContextRobustness)
-            return;
-
-        WindowHint(hint, (int)value);
+        Debug.Assert(hint is Hint.ContextCreationAPI);
+        WindowHint(value);
     }
 
-    public static void WindowHint(WindowHints hint, ContextReleaseBehaviours value)
+    public static void WindowHint(Hint hint, OpenGLProfile value)
     {
-        if (hint is not WindowHints.ContextReleaseBehaviour)
-            return;
-
-        WindowHint(hint, (int)value);
+        Debug.Assert(hint is Hint.OpenGLProfile);
+        WindowHint(value);
     }
 
-    public static void WindowHint(WindowHints hint, string value)
+    public static void WindowHint(Hint hint, ContextRobustness value)
     {
-        var isInvalidHint = hint is not WindowHints.CocoaFrameName or WindowHints.X11ClassName or WindowHints.X11InstanceName;
-        if (value is null || isInvalidHint)
-            return;
-
-        using var unmanagedValue = new UnmanagedStr(value);
-        glfwWindowHintString((int)hint, unmanagedValue);
+        Debug.Assert(hint is Hint.ContextRobustness);
+        WindowHint(value);
     }
 
-    public static Window CreateWindow(int width, int height, string title)
+    public static void WindowHint(Hint hint, ContextReleaseBehaviour value)
     {
-        return CreateWindow(width, height, title, Monitor.Null, Window.Null);
+        Debug.Assert(hint is Hint.ContextReleaseBehaviour);
+        WindowHint(value);
     }
 
-    public static Window CreateWindow(int width, int height, string title, Monitor monitor, Window share)
+    public static void WindowHint(ClientAPI value)
     {
-        using var unmanagedTitle = new UnmanagedStr(title);
-        var window = glfwCreateWindow(width, height, unmanagedTitle, monitor, share);
-
-        return window != Window.Null ? window : throw new Exception("Failed to create glfw window.");
+        WindowHint(Hint.ClientAPI, (int)value);
     }
 
-    public static void DestroyWindow(this Window window)
+    public static void WindowHint(ContextCreationAPI value)
+    {
+        WindowHint(Hint.ContextCreationAPI, (int)value);
+    }
+
+    public static void WindowHint(OpenGLProfile value)
+    {
+        WindowHint(Hint.OpenGLProfile, (int)value);
+    }
+
+    public static void WindowHint(ContextRobustness value)
+    {
+        WindowHint(Hint.ContextRobustness, (int)value);
+    }
+
+    public static void WindowHint(ContextReleaseBehaviour value)
+    {
+        WindowHint(Hint.ContextReleaseBehaviour, (int)value);
+    }
+
+    public static void WindowHint(Hint hint, string value)
+    {
+        Debug.Assert(!string.IsNullOrWhiteSpace(value));
+        Debug.Assert(
+            hint is Hint.CocoaFrameName or Hint.WaylandAppID or Hint.X11InstanceName or Hint.X11ClassName
+        );
+
+        CString.Use(value, str => glfwWindowHintString((int)hint, str));
+    }
+
+    public static WindowPtr CreateWindow(
+        int width,
+        int height,
+        ReadOnlySpan<byte> title,
+        MonitorPtr monitor = default,
+        WindowPtr share = default
+    ) => CString.Use(title, str => glfwCreateWindow(width, height, str, monitor, share));
+
+    public static WindowPtr CreateWindow(
+        int width,
+        int height,
+        ReadOnlySpan<char> title,
+        MonitorPtr monitor = default,
+        WindowPtr share = default
+    ) => CString.Use(title, str => glfwCreateWindow(width, height, str, monitor, share));
+
+    public static WindowPtr CreateWindow(
+        int width,
+        int height,
+        string title,
+        MonitorPtr monitor = default,
+        WindowPtr share = default
+    ) => CString.Use(title, str => glfwCreateWindow(width, height, str, monitor, share));
+
+    public static void DestroyWindow(this WindowPtr window)
     {
         glfwDestroyWindow(window);
     }
 
-    public static bool WindowShouldClose(this Window window)
+    public static bool WindowShouldClose(this WindowPtr window)
     {
-        return glfwWindowShouldClose(window) == True;
+        return glfwWindowShouldClose(window) == NativeTrue;
     }
 
-    public static void SetWindowShouldClose(this Window window, bool value)
+    public static void SetWindowShouldClose(this WindowPtr window, bool value)
     {
-        glfwSetWindowShouldClose(window, value ? True : False);
+        glfwSetWindowShouldClose(window, value ? NativeTrue : NativeFalse);
     }
 
-    public static void SetWindowTitle(this Window window, string title)
+    public static string GetWindowTitle(WindowPtr window)
     {
-        using var nativeTitle = new UnmanagedStr(title);
-        glfwSetWindowTitle(window, nativeTitle);
+        return CString.AsString(glfwGetWindowTitle(window));
     }
 
-    public static void SetWindowIcon(this Window window, ReadOnlySpan<Image> images)
+    public static void SetWindowTitle(this WindowPtr window, ReadOnlySpan<byte> title)
     {
-        Image* nativeImages = images.AsPointer();
-        glfwSetWindowIcon(window, images.Length, nativeImages);
+        CString.Use(title, str => glfwSetWindowTitle(window, str));
     }
 
-    public static (int x, int y) GetWindowPos(this Window window)
+    public static void SetWindowTitle(this WindowPtr window, ReadOnlySpan<char> title)
     {
-        (int x, int y) position = (0, 0);
-        glfwGetWindowPos(window, &position.x, &position.y);
-        return position;
+        CString.Use(title, str => glfwSetWindowTitle(window, str));
     }
 
-    public static void SetWindowPos(this Window window, int xPos, int yPos)
+    public static void SetWindowTitle(this WindowPtr window, string title)
     {
-        glfwSetWindowPos(window, xPos, yPos);
+        CString.Use(title, str => glfwSetWindowTitle(window, str));
     }
 
-    public static (int width, int height) GetWindowSize(this Window window)
+    public static void SetWindowIcon(this WindowPtr window, ReadOnlySpan<Image> images)
+    {
+        fixed (Image* ptr = images)
+            glfwSetWindowIcon(window, images.Length, ptr);
+    }
+
+    public static Point GetWindowPos(this WindowPtr window)
+    {
+        (int x, int y) pos = (0, 0);
+        glfwGetWindowPos(window, &pos.x, &pos.y);
+        return new(pos.x, pos.y);
+    }
+
+    public static void SetWindowPos(this WindowPtr window, Point position)
+    {
+        glfwSetWindowPos(window, position.X, position.Y);
+    }
+
+    public static void SetWindowPos(this WindowPtr window, int positionX, int positionY)
+    {
+        glfwSetWindowPos(window, positionX, positionY);
+    }
+
+    public static Size GetWindowSize(this WindowPtr window)
     {
         (int width, int height) size = (0, 0);
         glfwGetWindowSize(window, &size.width, &size.height);
-        return size;
+        return new(size.width, size.height);
     }
 
-    public static void SetWindowSizeLimits(this Window window, int minWidth = DontCare, int minHeight = DontCare, int maxWidth = DontCare, int maxHeight = DontCare)
+    // NOTE: This makes setting only width or only height limits more verbose
+    public static void SetWindowSizeLimits(this WindowPtr window, Size? minSize = null, Size? maxSize = null)
+    {
+        Size min = minSize ?? new Size(NativeDontCare, NativeDontCare);
+        Size max = maxSize ?? new Size(NativeDontCare, NativeDontCare);
+
+        glfwSetWindowSizeLimits(window, min.Width, min.Height, max.Width, max.Height);
+    }
+
+    public static void SetWindowSizeLimits(
+        this WindowPtr window,
+        int minWidth = NativeDontCare,
+        int minHeight = NativeDontCare,
+        int maxWidth = NativeDontCare,
+        int maxHeight = NativeDontCare
+    )
     {
         glfwSetWindowSizeLimits(window, minWidth, minHeight, maxWidth, maxHeight);
     }
 
-    public static void SetWindowAspectRatio(this Window window, int numerator = DontCare, int denominator = DontCare)
+    public static void SetWindowAspectRatio(
+        this WindowPtr window,
+        int numerator = NativeDontCare,
+        int denominator = NativeDontCare
+    )
     {
         glfwSetWindowAspectRatio(window, numerator, denominator);
     }
 
-    public static void SetWindowSize(this Window window, int width, int height)
+    public static void SetWindowSize(this WindowPtr window, Size size)
+    {
+        glfwSetWindowSize(window, size.Width, size.Height);
+    }
+
+    public static void SetWindowSize(this WindowPtr window, int width, int height)
     {
         glfwSetWindowSize(window, width, height);
     }
 
-    public static (int width, int height) GetFramebufferSize(this Window window)
+    public static Size GetFramebufferSize(this WindowPtr window)
     {
         (int width, int height) size = (0, 0);
         glfwGetFramebufferSize(window, &size.width, &size.height);
-        return size;
+        return new(size.width, size.height);
     }
 
-    public static (int left, int top, int right, int bottom) GetWindowFrameSize(this Window window)
+    // NOTE: No good alternative to this, maybe a custom type?
+    public static (int left, int top, int right, int bottom) GetWindowFrameSize(this WindowPtr window)
     {
         (int left, int top, int right, int bottom) rect = (0, 0, 0, 0);
         glfwGetWindowFrameSize(window, &rect.left, &rect.top, &rect.right, &rect.bottom);
         return rect;
     }
 
-    public static (float x, float y) GetWindowContentScale(this Window window)
+    public static Vector2 GetWindowContentScale(this WindowPtr window)
     {
-        (float x, float y) scale = (0, 0);
-        glfwGetWindowContentScale(window, &scale.x, &scale.y);
+        Vector2 scale = Vector2.Zero;
+        glfwGetWindowContentScale(window, &scale.X, &scale.Y);
         return scale;
     }
 
-    public static float GetWindowOpacity(this Window window)
+    public static float GetWindowOpacity(this WindowPtr window)
     {
         return glfwGetWindowOpacity(window);
     }
 
-    public static void SetWindowOpacity(this Window window, float opacity)
+    public static void SetWindowOpacity(this WindowPtr window, float opacity)
     {
         glfwSetWindowOpacity(window, opacity);
     }
 
-    public static void IconifyWindow(this Window window)
+    public static void IconifyWindow(this WindowPtr window)
     {
         glfwIconifyWindow(window);
     }
 
-    public static void RestoreWindow(this Window window)
+    public static void RestoreWindow(this WindowPtr window)
     {
         glfwRestoreWindow(window);
     }
 
-    public static void MaximizeWindow(this Window window)
+    public static void MaximizeWindow(this WindowPtr window)
     {
         glfwMaximizeWindow(window);
     }
 
-    public static void ShowWindow(this Window window)
+    public static void ShowWindow(this WindowPtr window)
     {
         glfwShowWindow(window);
     }
 
-    public static void HideWindow(this Window window)
+    public static void HideWindow(this WindowPtr window)
     {
         glfwHideWindow(window);
     }
 
-    public static void FocusWindow(this Window window)
+    public static void FocusWindow(this WindowPtr window)
     {
         glfwFocusWindow(window);
     }
 
-    public static void RequestWindowAttention(this Window window)
+    public static void RequestWindowAttention(this WindowPtr window)
     {
         glfwRequestWindowAttention(window);
     }
 
-    public static Monitor GetWindowMonitor(this Window window)
+    public static MonitorPtr GetWindowMonitor(this WindowPtr window)
     {
         return glfwGetWindowMonitor(window);
     }
 
-    public static void SetWindowMonitor(this Window window, Monitor monitor, int xPos, int yPos, int width, int height, int refreshRate)
+    public static void SetWindowMonitor(
+        this WindowPtr window,
+        MonitorPtr monitor,
+        Rectangle rect,
+        int refreshRate
+    )
     {
-        glfwSetWindowMonitor(window, monitor, xPos, yPos, width, height, refreshRate);
+        glfwSetWindowMonitor(window, monitor, rect.X, rect.Y, rect.Width, rect.Height, refreshRate);
     }
 
-    public static bool GetWindowAttrib(this Window window, WindowAttributes attribute)
+    public static void SetWindowMonitor(
+        this WindowPtr window,
+        MonitorPtr monitor,
+        int x,
+        int y,
+        int width,
+        int height,
+        int refreshRate
+    )
     {
-        return glfwGetWindowAttrib(window, attribute) == True;
+        glfwSetWindowMonitor(window, monitor, x, y, width, height, refreshRate);
     }
 
-    public static void SetWindowAttrib(this Window window, WindowMutableAttributes attribute, bool value)
+    public static void GetWindowAttrib(this WindowPtr window, Attributes attribute, out bool value)
     {
-        glfwSetWindowAttrib(window, attribute, value ? True : False);
+        Debug.Assert(
+            attribute
+                is not Attributes.ClientAPI
+                    and not Attributes.ContextCreationAPI
+                    and not Attributes.ContextVersionMajor
+                    and not Attributes.ContextVersionMinor
+                    and not Attributes.ContextRevision
+                    and not Attributes.OpenGLProfile
+                    and not Attributes.ContextReleaseBehaviour
+                    and not Attributes.ContextRobustness
+        );
+
+        value = glfwGetWindowAttrib(window, attribute) == NativeTrue;
     }
 
-    public static void SetWindowUserPointer<T>(this Window window, T data) where T : unmanaged
+    public static void GetWindowAttrib(this WindowPtr window, Attributes attribute, out int value)
     {
-        using var unmanagedData = new UnmanagedData<T>(data);
-        glfwSetWindowUserPointer(window, unmanagedData);
+        Debug.Assert(
+            attribute
+                is Attributes.ContextVersionMajor
+                    or Attributes.ContextVersionMinor
+                    or Attributes.ContextRevision
+        );
+        value = glfwGetWindowAttrib(window, attribute);
     }
 
-    public static T GetWindowUserPointer<T>(this Window window) where T : unmanaged
+    public static void GetWindowAttrib(this WindowPtr window, out ClientAPI value)
     {
-        using var unmanagedData = new UnmanagedData<T>(glfwGetWindowUserPointer(window));
-        return unmanagedData.ManagedData;
+        value = (ClientAPI)glfwGetWindowAttrib(window, Attributes.ClientAPI);
     }
 
-    public static WindowPositionCallback? SetWindowPosCallback(this Window window, WindowPositionCallback? callback)
+    public static void GetWindowAttrib(this WindowPtr window, out ContextCreationAPI value)
+    {
+        value = (ContextCreationAPI)glfwGetWindowAttrib(window, Attributes.ContextCreationAPI);
+    }
+
+    public static void GetWindowAttrib(this WindowPtr window, out OpenGLProfile value)
+    {
+        value = (OpenGLProfile)glfwGetWindowAttrib(window, Attributes.OpenGLProfile);
+    }
+
+    public static void GetWindowAttrib(this WindowPtr window, out ContextReleaseBehaviour value)
+    {
+        value = (ContextReleaseBehaviour)glfwGetWindowAttrib(window, Attributes.ContextReleaseBehaviour);
+    }
+
+    public static void GetWindowAttrib(this WindowPtr window, out ContextRobustness value)
+    {
+        value = (ContextRobustness)glfwGetWindowAttrib(window, Attributes.ContextRobustness);
+    }
+
+    public static bool IsWindowFocused(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.Focused) == NativeTrue;
+
+    public static bool IsWindowIconified(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.Iconified) == NativeTrue;
+
+    public static bool IsWindowMaximized(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.Maximized) == NativeTrue;
+
+    public static bool IsWindowHovered(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.Hovered) == NativeTrue;
+
+    public static bool IsWindowVisible(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.Visible) == NativeTrue;
+
+    public static bool IsWindowResizable(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.Resizable) == NativeTrue;
+
+    public static bool IsWindowDecorated(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.Decorated) == NativeTrue;
+
+    public static bool IsWindowAutoIconify(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.AutoIconify) == NativeTrue;
+
+    public static bool IsWindowFloating(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.Floating) == NativeTrue;
+
+    public static bool IsWindowTransparentFramebuffer(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.TransparentFramebuffer) == NativeTrue;
+
+    public static bool IsWindowFocusOnShow(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.FocusOnShow) == NativeTrue;
+
+    public static bool IsWindowMousePassthrough(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.MousePassthrough) == NativeTrue;
+
+    public static ClientAPI GetWindowClientAPI(this WindowPtr window) =>
+        (ClientAPI)glfwGetWindowAttrib(window, Attributes.ClientAPI);
+
+    public static ContextCreationAPI GetWindowContextCreationAPI(this WindowPtr window) =>
+        (ContextCreationAPI)glfwGetWindowAttrib(window, Attributes.ContextCreationAPI);
+
+    public static int GetWindowContextVersionMajor(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.ContextVersionMajor);
+
+    public static int GetWindowContextVersionMinor(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.ContextVersionMinor);
+
+    public static int GetWindowContextRevision(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.ContextRevision);
+
+    public static bool IsWindowOpenGLForwardCompat(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.OpenGLForwardCompat) == NativeTrue;
+
+    public static bool IsWindowContextDebug(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.ContextDebug) == NativeTrue;
+
+    public static OpenGLProfile GetWindowOpenGLProfile(this WindowPtr window) =>
+        (OpenGLProfile)glfwGetWindowAttrib(window, Attributes.OpenGLProfile);
+
+    public static ContextReleaseBehaviour GetWindowContextReleaseBehaviour(this WindowPtr window) =>
+        (ContextReleaseBehaviour)glfwGetWindowAttrib(window, Attributes.ContextReleaseBehaviour);
+
+    public static bool GetWindowContextNoError(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.ContextNoError) == NativeTrue;
+
+    public static ContextRobustness GetWindowContextRobustness(this WindowPtr window) =>
+        (ContextRobustness)glfwGetWindowAttrib(window, Attributes.ContextRobustness);
+
+    public static bool IsWindowDoubleBuffer(this WindowPtr window) =>
+        glfwGetWindowAttrib(window, Attributes.DoubleBuffer) == NativeTrue;
+
+    public static void SetWindowAttrib(this WindowPtr window, MutableAttributes attribute, bool value)
+    {
+        glfwSetWindowAttrib(window, attribute, value ? NativeTrue : NativeFalse);
+    }
+
+    public static void SetWindowUserPointer<T>(this WindowPtr window, ref T data)
+        where T : unmanaged
+    {
+        var ptr = Unsafe.AsPointer(ref data);
+        glfwSetWindowUserPointer(window, ptr);
+    }
+
+    public static T GetWindowUserPointer<T>(this WindowPtr window)
+        where T : unmanaged
+    {
+        var ptr = (T*)glfwGetWindowUserPointer(window);
+        return ptr is null ? default : *ptr;
+    }
+
+    public static WindowPositionCallback? SetWindowPosCallback(
+        this WindowPtr window,
+        WindowPositionCallback? callback
+    )
     {
         return glfwSetWindowPosCallback(window, callback);
     }
 
-    public static WindowSizeCallback? SetWindowSizeCallback(this Window window, WindowSizeCallback? callback)
+    public static WindowSizeCallback? SetWindowSizeCallback(
+        this WindowPtr window,
+        WindowSizeCallback? callback
+    )
     {
         return glfwSetWindowSizeCallback(window, callback);
     }
 
-    public static WindowCloseCallback? SetWindowCloseCallback(this Window window, WindowCloseCallback? callback)
+    public static WindowCloseCallback? SetWindowCloseCallback(
+        this WindowPtr window,
+        WindowCloseCallback? callback
+    )
     {
         return glfwSetWindowCloseCallback(window, callback);
     }
 
-    public static WindowRefreshCallback? SetWindowRefreshCallback(this Window window, WindowRefreshCallback? callback)
+    public static WindowRefreshCallback? SetWindowRefreshCallback(
+        this WindowPtr window,
+        WindowRefreshCallback? callback
+    )
     {
         return glfwSetWindowRefreshCallback(window, callback);
     }
 
-    public static WindowFocusCallback? SetWindowFocusCallback(this Window window, WindowFocusCallback? callback)
+    public static WindowFocusCallback? SetWindowFocusCallback(
+        this WindowPtr window,
+        WindowFocusCallback? callback
+    )
     {
         return glfwSetWindowFocusCallback(window, callback);
     }
 
-    public static WindowIconifyCallback? SetWindowIconifyCallback(this Window window, WindowIconifyCallback? callback)
+    public static WindowIconifyCallback? SetWindowIconifyCallback(
+        this WindowPtr window,
+        WindowIconifyCallback? callback
+    )
     {
         return glfwSetWindowIconifyCallback(window, callback);
     }
 
-    public static WindowMaximizeCallback? SetWindowMaximizeCallback(this Window window, WindowMaximizeCallback? callback)
+    public static WindowMaximizeCallback? SetWindowMaximizeCallback(
+        this WindowPtr window,
+        WindowMaximizeCallback? callback
+    )
     {
         return glfwSetWindowMaximizeCallback(window, callback);
     }
 
-    public static WindowFramebufferSizeCallback? SetFramebufferSizeCallback(this Window window, WindowFramebufferSizeCallback? callback)
+    public static WindowFramebufferSizeCallback? SetFramebufferSizeCallback(
+        this WindowPtr window,
+        WindowFramebufferSizeCallback? callback
+    )
     {
         return glfwSetFramebufferSizeCallback(window, callback);
     }
 
-    public static WindowContentsScaleCallback? SetWindowContentScaleCallback(this Window window, WindowContentsScaleCallback? callback)
+    public static WindowContentsScaleCallback? SetWindowContentScaleCallback(
+        this WindowPtr window,
+        WindowContentsScaleCallback? callback
+    )
     {
         return glfwSetWindowContentScaleCallback(window, callback);
     }
@@ -316,7 +579,7 @@ public unsafe static partial class GLFW
         glfwPostEmptyEvent();
     }
 
-    public static void SwapBuffers(this Window window)
+    public static void SwapBuffers(this WindowPtr window)
     {
         glfwSwapBuffers(window);
     }

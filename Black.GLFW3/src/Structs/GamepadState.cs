@@ -2,29 +2,58 @@ using System.Runtime.InteropServices;
 
 namespace Black.GLFW3;
 
-[StructLayout(LayoutKind.Sequential)]
-public unsafe struct GamepadState
+[StructLayout(LayoutKind.Explicit, Size = (sizeof(byte) * ButtonCount + sizeof(float) * AxesCount))]
+public unsafe struct GamepadState : IEquatable<GamepadState>
 {
-    public const int MaxButtonCount = 15;
-    public const int MaxAxesCount = 6;
+    public const int ButtonCount = 15;
+    public const int AxesCount = 6;
 
-    private fixed byte buttons[MaxButtonCount];
-    private fixed float axes[MaxAxesCount];
+    [FieldOffset(0)]
+    public fixed byte buttons[ButtonCount];
 
-    public Span<InputActions> Buttons
+    [FieldOffset(sizeof(byte) * ButtonCount)]
+    public fixed float axes[AxesCount];
+
+    public InputAction this[GamepadButton button]
+    {
+        get => (InputAction)buttons[(int)button];
+    }
+
+    public float this[GamepadAxis axis]
+    {
+        get => axes[(int)axis];
+    }
+
+    public ReadOnlySpan<InputAction> Buttons
     {
         get
         {
-            fixed (byte* b = buttons) 
-                return new(b, 15);
+            fixed (byte* ptr = buttons)
+                return new(ptr, ButtonCount);
         }
     }
-    public Span<float> Axes
+
+    public ReadOnlySpan<float> Axes
     {
         get
         {
-            fixed (float* f = axes) 
-                return new(f, 6);
+            fixed (float* ptr = axes)
+                return new(ptr, AxesCount);
         }
     }
+
+    public override bool Equals(object? obj) => obj is GamepadState other && this.Equals(other);
+
+    public override readonly int GetHashCode()
+    {
+        fixed (float* a = axes)
+        fixed (byte* b = buttons)
+            return HashCode.Combine((nint)b, (nint)a);
+    }
+
+    public bool Equals(GamepadState other) => Buttons == other.Buttons && Axes == other.Axes;
+
+    public static bool operator ==(GamepadState left, GamepadState right) => left.Equals(right);
+
+    public static bool operator !=(GamepadState left, GamepadState right) => !left.Equals(right);
 }

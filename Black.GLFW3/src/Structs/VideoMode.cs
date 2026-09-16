@@ -3,7 +3,14 @@ using System.Runtime.InteropServices;
 namespace Black.GLFW3;
 
 [StructLayout(LayoutKind.Sequential)]
-public readonly record struct VideoMode(int Width, int Height, int RedBits, int GreenBits, int BlueBits, int RefreshRate)
+public readonly record struct VideoMode(
+    int Width,
+    int Height,
+    int RedBits,
+    int GreenBits,
+    int BlueBits,
+    int RefreshRate
+)
 {
-    public static readonly VideoMode Null = new();
+    public override string ToString() => $"{Width}x{Height}@{RefreshRate} R{RedBits}G{GreenBits}B{BlueBits}";
 }

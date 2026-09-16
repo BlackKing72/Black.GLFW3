@@ -1,56 +1,58 @@
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+#pragma warning disable CA1401 // P/Invokes should not be visible
 
 using System.Runtime.InteropServices;
-using Black.Unmanaged;
 
 namespace Black.GLFW3;
 
-public unsafe static partial class Native
+// csharpier-ignore-start
+public unsafe static partial class GLFWNative
 {
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern Monitor* glfwGetMonitors(int* count);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial MonitorPtr* glfwGetMonitors(int* count);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern Monitor glfwGetPrimaryMonitor();
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial MonitorPtr glfwGetPrimaryMonitor();
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwGetMonitorPos(Monitor monitor, int* xpos, int* ypos);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwGetMonitorPos(MonitorPtr monitor, int* xpos, int* ypos);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwGetMonitorWorkarea(Monitor monitor, int* xpos, int* ypos, int* width, int* height);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwGetMonitorWorkarea(MonitorPtr monitor, int* xpos, int* ypos, int* width, int* height);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwGetMonitorPhysicalSize(Monitor monitor, int* widthMM, int* heightMM);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwGetMonitorPhysicalSize(MonitorPtr monitor, int* widthMM, int* heightMM);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwGetMonitorContentScale(Monitor monitor, float* xscale, float* yscale);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwGetMonitorContentScale(MonitorPtr monitor, float* xscale, float* yscale);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern UnmanagedStr glfwGetMonitorName(Monitor monitor);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetMonitorName(MonitorPtr monitor);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetMonitorUserPointer(Monitor monitor, void* pointer);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetMonitorUserPointer(MonitorPtr monitor, void* pointer);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void* glfwGetMonitorUserPointer(Monitor monitor);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void* glfwGetMonitorUserPointer(MonitorPtr monitor);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern MonitorCallback? glfwSetMonitorCallback (MonitorCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial MonitorCallback? glfwSetMonitorCallback(MonitorCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern VideoMode* glfwGetVideoModes(Monitor monitor, int* count);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial VideoMode* glfwGetVideoModes(MonitorPtr monitor, int* count);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern VideoMode* glfwGetVideoMode(Monitor monitor);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial VideoMode* glfwGetVideoMode(MonitorPtr monitor);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetGamma(Monitor monitor, float gamma);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetGamma(MonitorPtr monitor, float gamma);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern GammaRamp* glfwGetGammaRamp(Monitor monitor);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial GammaRamp glfwGetGammaRamp(MonitorPtr monitor);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetGammaRamp(Monitor monitor, GammaRamp ramp);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetGammaRamp(MonitorPtr monitor, GammaRamp ramp);
 }
 
-#pragma warning restore SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+// csharpier-ignore-end
+
+#pragma warning restore CA1401 // P/Invokes should not be visible

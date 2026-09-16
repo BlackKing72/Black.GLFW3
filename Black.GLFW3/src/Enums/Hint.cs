@@ -1,0 +1,54 @@
+namespace Black.GLFW3;
+
+public enum Hint : int
+{
+    Resizable = 0x00020003, // GLFW_RESIZABLE
+    Visible = 0x00020004, // GLFW_VISIBLE
+    Decorated = 0x00020005, // GLFW_DECORATED
+    Focused = 0x00020001, // GLFW_FOCUSED
+    AutoIconify = 0x00020006, // GLFW_AUTO_ICONIFY
+    Floating = 0x00020007, // GLFW_FLOATING
+    Maximized = 0x00020008, // GLFW_MAXIMIZED
+    CenterCursor = 0x00020009, // GLFW_CENTER_CURSOR
+    TransparentFramebuffer = 0x0002000A, // GLFW_TRANSPARENT_FRAMEBUFFER
+    FocusOnShow = 0x0002000C, // GLFW_FOCUS_ON_SHOW
+    ScaleToMonitor = 0x0002200C, // GLFW_SCALE_TO_MONITOR
+    ScaleFramebuffer = 0x0002200D, // GLFW_SCALE_FRAMEBUFFER
+    MousePassthrough = 0x0002000D, // GLFW_MOUSE_PASSTHROUGH
+    PositionX = 0x0002000E, // GLFW_POSITION_X
+    PositionY = 0x0002000F, // GLFW_POSITION_Y
+    RedBits = 0x00021001, // GLFW_RED_BITS
+    GreenBits = 0x00021002, // GLFW_GREEN_BITS
+    BlueBits = 0x00021003, // GLFW_BLUE_BITS
+    AlphaBits = 0x00021004, // GLFW_ALPHA_BITS
+    DepthBits = 0x00021005, // GLFW_DEPTH_BITS
+    StencilBits = 0x00021006, // GLFW_STENCIL_BITS
+    AccumRedBits = 0x00021007, // GLFW_ACCUM_RED_BITS
+    AccumGreenBits = 0x00021008, // GLFW_ACCUM_GREEN_BITS
+    AccumBlueBits = 0x00021009, // GLFW_ACCUM_BLUE_BITS
+    AccumAlphaBits = 0x0002100A, // GLFW_ACCUM_ALPHA_BITS
+    AuxBuffers = 0x0002100B, // GLFW_AUX_BUFFERS
+    Samples = 0x0002100D, // GLFW_SAMPLES
+    RefreshRate = 0x0002100F, // GLFW_REFRESH_RATE
+    Stereo = 0x0002100C, // GLFW_STEREO
+    SRGBCapable = 0x0002100E, // GLFW_SRGB_CAPABLE
+    DoubleBuffer = 0x00021010, // GLFW_DOUBLEBUFFER
+    ClientAPI = 0x00022001, // GLFW_CLIENT_API
+    ContextCreationAPI = 0x0002200B, // GLFW_CONTEXT_CREATION_API
+    ContextVersionMajor = 0x00022002, // GLFW_CONTEXT_VERSION_MAJOR
+    ContextVersionMinor = 0x00022003, // GLFW_CONTEXT_VERSION_MINOR
+    ContextRobustness = 0x00022005, // GLFW_CONTEXT_ROBUSTNESS
+    ContextReleaseBehaviour = 0x00022009, // GLFW_CONTEXT_RELEASE_BEHAVIOR
+    OpenGLForwardCompat = 0x00022006, // GLFW_OPENGL_FORWARD_COMPAT
+    ContextDebug = 0x00022007, // GLFW_CONTEXT_DEBUG
+    OpenGLDebugContext = ContextDebug, // GLFW_OPENGL_DEBUG_CONTEXT (Older)
+    OpenGLProfile = 0x00022008, // GLFW_OPENGL_PROFILE
+    Win32KeyboardMenu = 0x00025001, // GLFW_WIN32_KEYBOARD_MENU
+    Win32ShowDefault = 0x00025002, // GLFW_WIN32_SHOWDEFAULT
+    CocoaFrameName = 0x00023002, // GLFW_COCOA_FRAME_NAME
+    CocoaGraphicsSwitching = 0x00023003, // GLFW_COCOA_GRAPHICS_SWITCHING
+    CocoaRetinaFramebuffer = 0x00023001, // GLFW_COCOA_RETINA_FRAMEBUFFER (Older)
+    WaylandAppID = 0x00026001, // GLFW_WAYLAND_APP_ID
+    X11ClassName = 0x00024001, // GLFW_X11_CLASS_NAME
+    X11InstanceName = 0x00024002, // GLFW_X11_INSTANCE_NAME
+}

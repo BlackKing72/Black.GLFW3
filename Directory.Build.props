@@ -1,0 +1,15 @@
+<Project>
+    <!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+    <PropertyGroup>
+        <UseArtifactsOutput>true</UseArtifactsOutput>
+        <ArtifactsPath>$(MSBuildThisFileDirectory).artifacts</ArtifactsPath>
+    </PropertyGroup>
+
+    <!--
+    	Change ArtifactsProjectName for test projects
+     	The result should be something like "Black.GLFW3.Test_Project"
+    -->
+    <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('Tests'))">
+   		<ArtifactsProjectName>Black.GLFW3.Test_$(MSBuildProjectName)</ArtifactsProjectName>
+     </PropertyGroup>
+</Project>

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Black.GLFW3.Tests/">
+    <Project Path="Black.GLFW3.Tests/Allocator/Allocator.csproj" />
+    <Project Path="Black.GLFW3.Tests/Clipboard/Clipboard.csproj" />
+  </Folder>
+  <Project Path="Black.GLFW3/Black.GLFW3.csproj" />
+  <Project Path="Black.Unmanaged/Black.Unmanaged.csproj" />
+</Solution>

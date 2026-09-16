@@ -1,132 +1,134 @@
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+#pragma warning disable CA1401 // P/Invokes should not be visible
 
 using System.Runtime.InteropServices;
-using Black.Unmanaged;
 
 namespace Black.GLFW3;
 
-public unsafe static partial class Native
+// csharpier-ignore-start
+public static unsafe partial class GLFWNative
 {
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwGetInputMode(Window window, InputModes mode);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwGetInputMode(WindowPtr window, int mode);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetInputMode(Window window, InputModes mode, int value);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetInputMode(WindowPtr window, int mode, int value);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwRawMouseMotionSupported();
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwRawMouseMotionSupported();
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern UnmanagedStr glfwGetKeyName(KeyCodes key, int scancode);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetKeyName(Keys key, int scancode);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwGetKeyScancode(KeyCodes key);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwGetKeyScancode(Keys key);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwGetKey(Window window, KeyCodes key);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwGetKey(WindowPtr window, Keys key);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwGetMouseButton(Window window, MouseCodes button);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwGetMouseButton(WindowPtr window, MouseButton button);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwGetCursorPos(Window window, double* xpos, double* ypos);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwGetCursorPos(WindowPtr window, double* xpos, double* ypos);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetCursorPos(Window window, double xpos, double ypos);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetCursorPos(WindowPtr window, double xpos, double ypos);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern Cursor glfwCreateCursor(Image image, int xhot, int yhot);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial CursorPtr glfwCreateCursor(Image image, int xhot, int yhot);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern Cursor glfwCreateStandardCursor(StandardCursorShapes shape);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial CursorPtr glfwCreateStandardCursor(CursorShape shape);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwDestroyCursor(Cursor cursor);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwDestroyCursor(CursorPtr cursor);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetCursor(Window window, Cursor cursor);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetCursor(WindowPtr window, CursorPtr cursor);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern KeyCallback? glfwSetKeyCallback(Window window, KeyCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial KeyCallback? glfwSetKeyCallback(WindowPtr window, KeyCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern CharCallback? glfwSetCharCallback(Window window, CharCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial CharCallback? glfwSetCharCallback(WindowPtr window, CharCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
+    [LibraryImport(GLFWLibrary.Name)]
     [Obsolete("Scheduled for removal in version 4.0.")]
-    internal static extern CharModsCallback? glfwSetCharModsCallback(Window window, CharModsCallback? callback);
+    public static partial CharModsCallback? glfwSetCharModsCallback(WindowPtr window, CharModsCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern MouseButtonCallback? glfwSetMouseButtonCallback(Window window, MouseButtonCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial MouseButtonCallback? glfwSetMouseButtonCallback(WindowPtr window, MouseButtonCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern MousePositionCallback? glfwSetCursorPosCallback(Window window, MousePositionCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial MousePositionCallback? glfwSetCursorPosCallback(WindowPtr window, MousePositionCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern MouseEnterCallback? glfwSetCursorEnterCallback(Window window, MouseEnterCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial MouseEnterCallback? glfwSetCursorEnterCallback(WindowPtr window, MouseEnterCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern MouseScrollCallback? glfwSetScrollCallback(Window window, MouseScrollCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial MouseScrollCallback? glfwSetScrollCallback(WindowPtr window, MouseScrollCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern FileDropCallback? glfwSetDropCallback(Window window, FileDropCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial FileDropCallback? glfwSetDropCallback(WindowPtr window, FileDropCallback? callback);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwJoystickPresent(Joysticks jid);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwJoystickPresent(Joystick jid);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern float* glfwGetJoystickAxes(Joysticks jid, int* count);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial float* glfwGetJoystickAxes(Joystick jid, int* count);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern byte* glfwGetJoystickButtons(Joysticks jid, int* count);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetJoystickButtons(Joystick jid, int* count);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern byte* glfwGetJoystickHats(Joysticks jid, int* count);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetJoystickHats(Joystick jid, int* count);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern UnmanagedStr glfwGetJoystickName(Joysticks jid);
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern UnmanagedStr glfwGetJoystickGUID(Joysticks jid);
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetJoystickUserPointer(Joysticks jid, void* pointer);
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void* glfwGetJoystickUserPointer(Joysticks jid);
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwJoystickIsGamepad(Joysticks jid);
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern JoystickCallback? glfwSetJoystickCallback(JoystickCallback? callback);
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwUpdateGamepadMappings(UnmanagedStr @string);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetJoystickName(Joystick jid);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern UnmanagedStr glfwGetGamepadName(Joysticks jid);
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwGetGamepadState(Joysticks jid, GamepadState* state);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetJoystickGUID(Joystick jid);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetClipboardString(Window window, UnmanagedStr @string);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetJoystickUserPointer(Joystick jid, void* pointer);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern UnmanagedStr glfwGetClipboardString(Window window);
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern double glfwGetTime();
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwSetTime(double time);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void* glfwGetJoystickUserPointer(Joystick jid);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern ulong glfwGetTimerValue();
-    
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern ulong glfwGetTimerFrequency();
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwJoystickIsGamepad(Joystick jid);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial JoystickCallback? glfwSetJoystickCallback(JoystickCallback? callback);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwUpdateGamepadMappings(byte* @string);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetGamepadName(Joystick jid);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwGetGamepadState(Joystick jid, GamepadState* state);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetClipboardString(WindowPtr window, byte* @string);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetClipboardString(WindowPtr window);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial double glfwGetTime();
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSetTime(double time);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial ulong glfwGetTimerValue();
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial ulong glfwGetTimerFrequency();
 }
 
-#pragma warning restore SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+// csharpier-ignore-end
+
+#pragma warning restore CA1401 // P/Invokes should not be visible

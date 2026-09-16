@@ -1,16 +1,15 @@
+using static Black.GLFW3.GLFWNative;
+
 namespace Black.GLFW3;
 
-using Black.Unmanaged;
-using static Black.GLFW3.Native;
-
-public unsafe static partial class GLFW
+public static unsafe partial class GLFW
 {
-    public static void MakeContextCurrent(this Window window)
+    public static void MakeContextCurrent(this WindowPtr window)
     {
         glfwMakeContextCurrent(window);
     }
 
-    public static Window GetCurrentContext()
+    public static WindowPtr GetCurrentContext()
     {
         return glfwGetCurrentContext();
     }
@@ -25,15 +24,33 @@ public unsafe static partial class GLFW
         glfwSwapInterval((int)mode);
     }
 
-    public static bool ExtensionSupported(string extensionName)
+    public static bool ExtensionSupported(ReadOnlySpan<byte> extension)
     {
-        using var nativeExtension = new UnmanagedStr(extensionName);
-        return glfwExtensionSupported(nativeExtension) == Native.True;
+        return CString.Use(extension, str => glfwExtensionSupported(str) == NativeTrue);
     }
 
-    public static OpenGLProcedure GetProcAddress(string procedureName)
+    public static bool ExtensionSupported(ReadOnlySpan<char> extension)
     {
-        using var nativeProcedureName = new UnmanagedStr(procedureName);
-        return glfwGetProcAddress(nativeProcedureName);
+        return CString.Use(extension, str => glfwExtensionSupported(str) == NativeTrue);
+    }
+
+    public static bool ExtensionSupported(string extension)
+    {
+        return CString.Use(extension, str => glfwExtensionSupported(str) == NativeTrue);
+    }
+
+    public static nint GetProcAddress(ReadOnlySpan<byte> procedure)
+    {
+        return CString.Use(procedure, str => (nint)glfwGetProcAddress(str));
+    }
+
+    public static nint GetProcAddress(ReadOnlySpan<char> procedure)
+    {
+        return CString.Use(procedure, str => (nint)glfwGetProcAddress(str));
+    }
+
+    public static nint GetProcAddress(string procedure)
+    {
+        return CString.Use(procedure, str => (nint)glfwGetProcAddress(str));
     }
 }

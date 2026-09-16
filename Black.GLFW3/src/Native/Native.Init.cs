@@ -1,36 +1,50 @@
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+#pragma warning disable CA1401 // P/Invokes should not be visible
 
 using System.Runtime.InteropServices;
-using Black.Unmanaged;
 
 namespace Black.GLFW3;
 
-public unsafe static partial class Native
+// csharpier-ignore-start
+public static unsafe partial class GLFWNative
 {
-    internal const int True = 1;
-    internal const int False = 0;
-    internal const int DontCare = -1;
+    public const int NativeTrue = 1;
+    public const int NativeFalse = 0;
+    public const int NativeDontCare = -1;
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern int glfwInit();
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwInit();
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwTerminate();
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwTerminate();
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwInitHint(InitHints hint, int value);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwInitHint(InitHint hint, int value);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern void glfwGetVersion(int* major, int* minor, int* rev);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwInitAllocator(void* allocator);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern UnmanagedStr glfwGetVersionString();
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwInitVulkanLoader(VKGetInstanceProcAddr loader);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern ErrorCodes glfwGetError(UnmanagedStr* description);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwGetVersion(int* major, int* minor, int* rev);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern ErrorCallback? glfwSetErrorCallback(ErrorCallback? callback);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial byte* glfwGetVersionString();
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial ErrorCode glfwGetError(byte** description);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial ErrorCallback? glfwSetErrorCallback(ErrorCallback? callback);
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial Platform glfwGetPlatform();
+
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwPlatformSupported(Platform platform);
 }
 
-#pragma warning restore SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+// csharpier-ignore-end
+
+#pragma warning restore CA1401 // P/Invokes should not be visible

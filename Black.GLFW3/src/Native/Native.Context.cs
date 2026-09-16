@@ -1,26 +1,29 @@
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+
+#pragma warning disable CA1401 // P/Invokes should not be visible
 
 using System.Runtime.InteropServices;
-using Black.Unmanaged;
 
 namespace Black.GLFW3;
 
-public unsafe static partial class Native
+// csharpier-ignore-start
+public static unsafe partial class GLFWNative
 {
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern unsafe void glfwMakeContextCurrent(Window window);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwMakeContextCurrent(WindowPtr window);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern unsafe Window glfwGetCurrentContext();
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial WindowPtr glfwGetCurrentContext();
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern unsafe void glfwSwapInterval(int interval);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void glfwSwapInterval(int interval);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern unsafe int glfwExtensionSupported(UnmanagedStr extension);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial int glfwExtensionSupported(byte* extension);
 
-    [DllImport(GLFWLibrary.Name)]
-    internal static extern unsafe OpenGLProcedure glfwGetProcAddress(UnmanagedStr procname);
+    [LibraryImport(GLFWLibrary.Name)]
+    public static partial void* glfwGetProcAddress(byte* procname);
 }
 
-#pragma warning restore SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+// csharpier-ignore-end
+
+#pragma warning restore CA1401 // P/Invokes should not be visible

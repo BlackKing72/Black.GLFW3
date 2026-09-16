@@ -1,9 +1,8 @@
 namespace Black.GLFW3;
 
-using Black.Unmanaged;
-using static Black.GLFW3.Native;
+using static Black.GLFW3.GLFWNative;
 
-public unsafe static partial class GLFW
+public static unsafe partial class GLFW
 {
     private static Version cachedVersion = default;
     private static string cachedVersionString = "";
@@ -13,10 +12,9 @@ public unsafe static partial class GLFW
         GLFWLibrary.Initialize();
     }
 
-    public static void Initialize()
+    public static bool Init()
     {
-        if (glfwInit() != True)
-            throw new Exception("Failed to initialize GLFW.");
+        return glfwInit() == NativeTrue;
     }
 
     public static void Terminate()
@@ -24,49 +22,63 @@ public unsafe static partial class GLFW
         glfwTerminate();
     }
 
-    public static void InitializeHint(InitHints hint, bool value)
+    public static void InitHint(InitHint hint, bool value)
     {
-        glfwInitHint(hint, value ? True : False);
+        glfwInitHint(hint, value ? NativeTrue : NativeFalse);
     }
 
-    public static Version Version
+    public static void InitAllocator<T>(AllocatorPtr<T> allocator)
+        where T : unmanaged
     {
-        get
-        {
-            if (cachedVersion == default)
-                fixed (Version* version = &cachedVersion)
-                    glfwGetVersion(&version->Major, &version->Minor, &version->Revision);
-
-            return cachedVersion;
-        }
+        glfwInitAllocator(&allocator);
     }
 
-    public static string VersionString
+    public static void InitializeVulkanLoader(VKGetInstanceProcAddr loader)
     {
-        get
-        {
-            if (string.IsNullOrEmpty(cachedVersionString))
-            {
-                var versionString = glfwGetVersionString();
-                cachedVersionString = versionString;
-            }
-
-            return cachedVersionString;
-        }
+        glfwInitVulkanLoader(loader);
     }
 
-    public static Error Error
+    public static Version GetVersion()
     {
-        get
+        if (cachedVersion == default)
         {
-            UnmanagedStr description;
-            ErrorCodes error = glfwGetError(&description);
-            return new Error(error, description);
+            int major,
+                minor,
+                revision;
+            glfwGetVersion(&major, &minor, &revision);
+            cachedVersion = new(major, minor, revision);
         }
+
+        return cachedVersion;
+    }
+
+    public static string GetVersionString()
+    {
+        if (string.IsNullOrEmpty(cachedVersionString))
+            cachedVersionString = CString.AsString(glfwGetVersionString());
+
+        return cachedVersionString;
+    }
+
+    public static Error GetError()
+    {
+        byte* description;
+        ErrorCode error = glfwGetError(&description);
+        return new Error(error, CString.AsString(description));
     }
 
     public static ErrorCallback? SetErrorCallback(ErrorCallback? callback)
     {
         return glfwSetErrorCallback(callback);
+    }
+
+    public static Platform GetPlatform()
+    {
+        return glfwGetPlatform();
+    }
+
+    public static bool IsPlatformSupported(Platform platform)
+    {
+        return glfwPlatformSupported(platform) == NativeTrue;
     }
 }

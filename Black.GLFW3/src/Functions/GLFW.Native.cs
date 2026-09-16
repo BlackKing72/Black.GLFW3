@@ -1,215 +1,177 @@
 namespace Black.GLFW3;
 
-using System.Runtime.InteropServices;
-using Black.Unmanaged;
-using static Black.GLFW3.Native;
+using static Black.GLFW3.GLFWNative;
 
-public unsafe static partial class NativeGLFW
+public static unsafe partial class NativeGLFW
 {
-    public static string GetWin32Adapter(Monitor monitor)
+    public static string GetWin32Adapter(MonitorPtr monitor)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return string.Empty;
-
-        using var unmanagedName = glfwGetWin32Adapter(monitor);
-        return unmanagedName;
+        return CString.AsString(glfwGetWin32Adapter(monitor));
     }
 
-    public static string GetWin32Monitor(Monitor monitor)
+    public static string GetWin32Monitor(MonitorPtr monitor)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return string.Empty;
-
-        using var unmanagedName = glfwGetWin32Monitor(monitor);
-        return unmanagedName;
+        return CString.AsString(glfwGetWin32Monitor(monitor));
     }
 
-    public static nint GetWin32Window(Window window)
+    public static nint GetWin32Window(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return nint.Zero;
-
         return glfwGetWin32Window(window);
     }
 
-    public static nint GetWGLContext(Window window)
+    public static nint GetWGLContext(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return nint.Zero;
-
         return glfwGetWGLContext(window);
     }
 
-    public static nint GetCocoaMonitor(Monitor window)
+    public static nint GetCocoaMonitor(MonitorPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return nint.Zero;
-
         return glfwGetCocoaMonitor(window);
     }
 
-    public static nint GetCocoaWindow(Window window)
+    public static nint GetCocoaWindow(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return nint.Zero;
-
         return glfwGetCocoaWindow(window);
     }
 
-    public static nint GetNSGLContext(Window window)
+    public static nint GetCocoaView(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return nint.Zero;
+        return glfwGetCocoaView(window);
+    }
 
+    public static nint GetNSGLContext(WindowPtr window)
+    {
         return glfwGetNSGLContext(window);
     }
 
     public static nint GetX11Display()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetX11Display();
     }
 
-    public static nint GetX11Adapter(Monitor monitor)
+    public static nint GetX11Adapter(MonitorPtr monitor)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetX11Adapter(monitor);
     }
 
-    public static nint GetX11Monitor(Monitor monitor)
+    public static nint GetX11Monitor(MonitorPtr monitor)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetX11Monitor(monitor);
     }
 
-    public static nint GetX11Window(Window window)
+    public static nint GetX11Window(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetX11Window(window);
     }
 
-
     public static void SetX11SelectionString(string selection)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return;
-
-        using var unmanagedSelection = new UnmanagedStr(selection);
-        glfwSetX11SelectionString(unmanagedSelection);
+        CString.Use(selection, str => glfwSetX11SelectionString(str));
     }
 
     public static string GetX11SelectionString()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return string.Empty;
-
-        using var unmanagedSelection = glfwGetX11SelectionString();
-        return unmanagedSelection;
+        return CString.AsString(glfwGetX11SelectionString());
     }
 
-    public static nint GetGLXContext(Window window)
+    public static nint GetGLXContext(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetGLXContext(window);
     }
 
-    public static nint GetGLXWindow(Window window)
+    public static nint GetGLXWindow(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetGLXWindow(window);
+    }
+
+    public static bool GetGLXFbConfig(WindowPtr window, nint config)
+    {
+        return glfwGetGLXFBConfig(window, config) == NativeTrue;
     }
 
     public static nint GetWaylandDisplay()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetWaylandDisplay();
     }
 
-    public static nint GetWaylandMonitor(Monitor monitor)
+    public static nint GetWaylandMonitor(MonitorPtr monitor)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetWaylandMonitor(monitor);
     }
 
-    public static nint GetWaylandWindow(Window window)
+    public static nint GetWaylandWindow(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetWaylandWindow(window);
     }
 
     public static nint GetEGLDisplay()
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetEGLDisplay();
     }
 
-    public static nint GetEGLContext(Window window)
+    public static nint GetEGLContext(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetEGLContext(window);
     }
 
-    public static nint GetEGLSurface(Window window)
+    public static nint GetEGLSurface(WindowPtr window)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return nint.Zero;
-
         return glfwGetEGLSurface(window);
     }
 
-    public static bool GetOSMesaColorBuffer(Window window, out int width, out int height, out int format, out nint buffer)
+    public static bool GetEGLConfig(WindowPtr window, nint config)
     {
-        int unmanagedWidth, unmanagedHeight, unmanagedFormat;
-        void* unmanagedBuffer = null;
-
-        var unmanagedResult = glfwGetOSMesaColorBuffer(window, &unmanagedWidth, &unmanagedHeight, &unmanagedFormat, &unmanagedBuffer);
-
-        width = unmanagedWidth;
-        height = unmanagedHeight;
-        format = unmanagedFormat;
-        buffer = (nint)unmanagedBuffer;
-
-        return unmanagedResult == True;
+        return glfwGetEGLConfig(window, config) == NativeTrue;
     }
 
-    public static bool GetOSMesaDepthBuffer(Window window, out int width, out int height, out int bytesPerValue, out nint buffer)
+    public static bool GetOSMesaColorBuffer(
+        WindowPtr window,
+        out int width,
+        out int height,
+        out int format,
+        out nint buffer
+    )
     {
-        int unmanagedWidth, unmanagedHeight, unmanagedBytesPerValue;
-        void* unmanagedBuffer = null;
+        (int width, int height, int format) data = (0, 0, 0);
+        void* dataBuffer = null;
+        var result = glfwGetOSMesaColorBuffer(window, &data.width, &data.height, &data.format, &dataBuffer);
 
-        var unmanagedResult = glfwGetOSMesaDepthBuffer(window, &unmanagedWidth, &unmanagedHeight, &unmanagedBytesPerValue, &unmanagedBuffer);
+        width = data.width;
+        height = data.height;
+        format = data.format;
+        buffer = (nint)dataBuffer;
 
-        width = unmanagedWidth;
-        height = unmanagedHeight;
-        bytesPerValue = unmanagedBytesPerValue;
-        buffer = (nint)unmanagedBuffer;
-
-        return unmanagedResult == True;
+        return result == NativeTrue;
     }
 
-    public static nint GetOSMesaContext(Window window)
+    public static bool GetOSMesaDepthBuffer(
+        WindowPtr window,
+        out int width,
+        out int height,
+        out int bytesPerValue,
+        out nint buffer
+    )
+    {
+        (int width, int height, int bytesPerValue) data = (0, 0, 0);
+        void* dataBuffer = null;
+
+        var unmanagedResult = glfwGetOSMesaDepthBuffer(
+            window,
+            &data.width,
+            &data.height,
+            &data.bytesPerValue,
+            &dataBuffer
+        );
+
+        width = data.width;
+        height = data.height;
+        bytesPerValue = data.bytesPerValue;
+        buffer = (nint)dataBuffer;
+
+        return unmanagedResult == NativeTrue;
+    }
+
+    public static nint GetOSMesaContext(WindowPtr window)
     {
         return glfwGetOSMesaContext(window);
     }

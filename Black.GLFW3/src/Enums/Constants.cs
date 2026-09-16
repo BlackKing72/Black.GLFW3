@@ -2,7 +2,8 @@ namespace Black.GLFW3;
 
 public enum Constants : int
 {
-    DontCare                =-1,
-    False                   = 0,
-    True                    = 1,
+    AnyPosition = unchecked((int)0x80000000),
+    DontCare = -1,
+    False = 0,
+    True = 1,
 }

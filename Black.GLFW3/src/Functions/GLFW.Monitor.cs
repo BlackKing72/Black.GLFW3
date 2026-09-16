@@ -1,66 +1,72 @@
 namespace Black.GLFW3;
 
-using Black.Unmanaged;
-using static Black.GLFW3.Native;
+using System.Drawing;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using static Black.GLFW3.GLFWNative;
 
-public unsafe static partial class GLFW
+public static unsafe partial class GLFW
 {
-    public static ReadOnlySpan<Monitor> GetMonitors()
+    public static ReadOnlySpan<MonitorPtr> GetMonitors()
     {
         int count = 0;
         var unmanagedMonitors = glfwGetMonitors(&count);
         return new(unmanagedMonitors, count);
     }
 
-    public static Monitor GetPrimaryMonitor()
+    /// <summary> This copies the data to a new array. Prefer using <see cref="GetMonitors"/> instead </summary>
+    public static MonitorPtr[] GetMonitorsArray() => [.. GetMonitors()];
+
+    public static MonitorPtr GetPrimaryMonitor()
     {
         return glfwGetPrimaryMonitor();
     }
 
-    public static (int x, int y) GetMonitorPos(this Monitor monitor)
+    public static Point GetMonitorPos(this MonitorPtr monitor)
     {
         (int x, int y) position = (0, 0);
         glfwGetMonitorPos(monitor, &position.x, &position.y);
-        return position;
+        return new(position.x, position.y);
     }
 
-    public static (int x, int y, int width, int height) GetMonitorWorkArea(this Monitor monitor)
+    public static Rectangle GetMonitorWorkArea(this MonitorPtr monitor)
     {
         (int x, int y, int width, int height) area = (0, 0, 0, 0);
         glfwGetMonitorWorkarea(monitor, &area.x, &area.y, &area.width, &area.height);
-        return area;
+        return new(area.x, area.y, area.width, area.height);
     }
 
-    public static (int width, int height) GetMonitorPhysicalSize(this Monitor monitor)
+    public static Size GetMonitorPhysicalSize(this MonitorPtr monitor)
     {
-        (int width, int height) physicalSize = (0, 0);
-        glfwGetMonitorPhysicalSize(monitor, &physicalSize.width, &physicalSize.height);
-        return physicalSize;
+        (int width, int height) size = (0, 0);
+        glfwGetMonitorPhysicalSize(monitor, &size.width, &size.height);
+        return new(size.width, size.height);
     }
 
-    public static (float x, float y) GetMonitorContentScale(this Monitor monitor)
+    public static Vector2 GetMonitorContentScale(this MonitorPtr monitor)
     {
         (float x, float y) scale = (0, 0);
         glfwGetMonitorContentScale(monitor, &scale.x, &scale.y);
-        return scale;
+        return new(scale.x, scale.y);
     }
 
-    public static string GetMonitorName(this Monitor monitor)
+    public static string GetMonitorName(this MonitorPtr monitor)
     {
-        using var unmanagedName = glfwGetMonitorName(monitor);
-        return unmanagedName;
+        return CString.AsString(glfwGetMonitorName(monitor));
     }
 
-    public static void SetMonitorUserPointer<T>(this Monitor monitor, T data) where T : unmanaged
+    public static void SetMonitorUserPointer<T>(this MonitorPtr monitor, ref T data)
+        where T : unmanaged
     {
-        using var unmanagedData = new UnmanagedData<T>(data);
-        glfwSetMonitorUserPointer(monitor, unmanagedData);
+        var ptr = Unsafe.AsPointer(ref data);
+        glfwSetMonitorUserPointer(monitor, ptr);
     }
 
-    public static T GetMonitorUserPointer<T>(this Monitor monitor) where T : unmanaged
+    public static T GetMonitorUserPointer<T>(this MonitorPtr monitor)
+        where T : unmanaged
     {
-        using var unmanagedData = new UnmanagedData<T>(glfwGetMonitorUserPointer(monitor));
-        return unmanagedData.ManagedData;
+        var ptr = (T*)glfwGetMonitorUserPointer(monitor);
+        return ptr is null ? default : *ptr;
     }
 
     public static MonitorCallback? SetMonitorCallback(this MonitorCallback? callback)
@@ -68,31 +74,29 @@ public unsafe static partial class GLFW
         return glfwSetMonitorCallback(callback);
     }
 
-    public static ReadOnlySpan<VideoMode> GetVideoModes(this Monitor monitor)
+    public static ReadOnlySpan<VideoMode> GetVideoModes(this MonitorPtr monitor)
     {
         int count = 0;
         var unmanagedVideoModes = glfwGetVideoModes(monitor, &count);
         return new ReadOnlySpan<VideoMode>(unmanagedVideoModes, count);
     }
 
-    public static VideoMode GetVideoMode(this Monitor monitor)
+    public static VideoMode GetVideoMode(this MonitorPtr monitor)
     {
-        using var unmanagedData = new UnmanagedData<VideoMode>(glfwGetVideoMode(monitor));
-        return unmanagedData.ManagedData;
+        return *glfwGetVideoMode(monitor);
     }
 
-    public static void SetGamma(this Monitor monitor, float gamma)
+    public static void SetGamma(this MonitorPtr monitor, float gamma)
     {
         glfwSetGamma(monitor, gamma);
     }
 
-    public static GammaRamp GetGammaRamp(this Monitor monitor)
+    public static GammaRamp GetGammaRamp(this MonitorPtr monitor)
     {
-        using var unmanagedData = new UnmanagedData<GammaRamp>(glfwGetGammaRamp(monitor));
-        return unmanagedData.ManagedData;
+        return glfwGetGammaRamp(monitor);
     }
 
-    public static void SetGammaRamp(this Monitor monitor, GammaRamp ramp)
+    public static void SetGammaRamp(this MonitorPtr monitor, GammaRamp ramp)
     {
         glfwSetGammaRamp(monitor, ramp);
     }
